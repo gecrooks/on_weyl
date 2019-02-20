@@ -1,0 +1,23 @@
+
+# Various auxilary files spit out by latex
+*.out
+*.toc
+*.brf
+*.blg
+*.aux
+*.log
+*.lof
+*.lot
+*.idx
+*.ilg
+*.ind
+*.end
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.fdb_latexmk
+*.fls
+*.xdv
+*.pdf
+
+.DS_Store
