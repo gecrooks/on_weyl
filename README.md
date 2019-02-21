@@ -1,12 +1,12 @@
-# On the Weyl chamber of Canonical non-local 2-qubit gates 
-
-Tech. Note 012
+# The Weyl chamber of Canonical non-local 2-qubit gates 
 
 A papercraft model: Print, cut, fold, and paste.
 
 Gavin E. Crooks
 
-http://threeplusone.com/weyl
+Tech. Note 012
+
+PDF: http://threeplusone.com/weyl
 
 Compile: `latexmk -xelatex weyl.tex`
 
