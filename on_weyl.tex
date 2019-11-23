@@ -178,6 +178,11 @@
 
 \node (QFT2) at ({3/2}, {sqrt(2)}) {};
 
+\node (SYC)		at ({1/6}, {sqrt(2)}) {};
+\node [rotate=180] (SYC_L) at ([shift={(270:\sep)}]SYC) {${\Gate{Sycamore}}$};
+\draw[->] (SYC_L) -- (SYC);
+
+
 \node (CNOTR) at ({1/2}, 0) {};
 \node (CNOTR_L) at ([shift={(270:\sep)}]CNOTR) {$\Gate{CV}$};
 \draw[->] (CNOTR_L) -- (CNOTR);
