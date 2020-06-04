@@ -8,11 +8,13 @@
 %\usepackage[braket, qm]{qcircuit}
 \usepackage[flushleft]{threeparttable}
 \usepackage{adjustbox}
+\usepackage[backref=true,totoc=section]{enotez}
 
+\usepackage{mathtools}
 
 \newcommand{\thetitle}{Gates, States, and Circuits: \\ \small Notes on the circuit model of quantum computation}
 \newcommand{\thesubject}{Gates, States, and Circuits}
-\newcommand{\theversion}{2}
+\newcommand{\theversion}{4}
 \newcommand{\theauthor}{Gavin E.\ Crooks}
 
 \hypersetup{ 
@@ -37,7 +39,7 @@
 \newcommand{\arxiv}[1]{{arXiv}:\href{http://arxiv.org/abs/#1}{#1}}
 
 
-\newcommand{\loceq}{\cong}
+\newcommand{\loceq}{\sim}
 
 %\setcounter{secnumdepth}{5}
 \setcounter{tocdepth}{5}
@@ -58,8 +60,40 @@ Tech. Note 014v\theversion ~~~ \href{http://threeplusone.com/gates}{http://three
 
 \tableofcontents
 
+\section{Introduction}
+\subsection{Additional reading}
+The canonical textbook for quantum computing and information remains Michael A. Nielsen's and Isaac L. Chuang's   
+classic ``Quantum Computation and Quantum Information'' (affectionately know as Mike and Ike)~\cite{Nielsen2000a, Nielsen2010b}.  
+If you have any serious interest in quantum computing, you should own this book\endnote{And Mike and Ike}.
+% We're 
+These notes are 
+going to take a different cut through the subject, with more detail in some places, some newer material, but neglecting other areas entirely, since it is not nessary to repeat what Mike and Ike have already so ably covered. John Preskill's lecture notes~\cite{PreskillLectureNotes} are also excellent (If perennially incomplete).
+
+For a basic introduction to quantum mechanics, see ``Quantum Mechanics: The Theoretical Minimum'' by 
+by Leonard Susskind and Art Friedman~\cite{Susskind2015a}. The traditional quantum mechanics textbooks are not so useful, since they tend to rapidly skip over the fundamental and informational aspects, and concentrate on the detailed behavior of light, and atoms, and cavities, and what have you. Such physical details  matter if you're building a quantum computer, obviously, but not so much for programming, and I think the traditional approach tends to obscure the essentials of quantum information and how fundamentally different quantum is from classical physics. But among such physics texts, I'd recommend ``Modern Quantum Mechanics'' by J. J. Sakurai~\cite{Sakurai2010a}\endnote{At least partially because I had to slog through it, so why shouldn't you suffer too? It's a great book, but not easy.}.
+
+For gentler introductions to quantum computing see ``Quantum Computing: A Gentle Introduction'' by Eleanor G. Rieffel and Wolfgang H. Polak~\cite{Rieffel2014a}, and ``Quantum Computing: An Applied Approach'',
+by Jack D.~Hidary~\cite{Hidary2019a}. Scott Aaronson's ``Quantum Computing since Democritus''~\cite{Aaronson2013a} is also a good place to start, particularly for computational complexity theory.  Another interesting foray is ``Quantum Country'' by Andy Matuschak and Michael Nielsen, which is an online introductory course in quantum computing, with builtin spaced repetition~\cite{QuantumCountry}.
+
+Mathematically, quantum mechanics is applied linear algebra, and you can never go wrong learning more linear algebra. For a good introduction see ``No Bullshit Guide to Linear Algebra'' by Ivan Savov~\cite{Savov2017a}, and for a deeper dive ``Linear Algebra Done Right'' by Sheldon Axler~\cite{Axler2004a}.
+
+
+For a deep dives into quantum information, both ``The Theory of Quantum Information'' by John Watrous~\cite{Watrous2018a} and ``Quantum Information Theory'' by Mark M.~Wilde ~\cite{Wilde2017a} are excellent, if weighty, tombs.
+
+And if you have very young children, start them early with Chris Ferrie's ``Quantum Computing for Babies''~\cite{Ferrie2018a}.
+
+% \section{Classical logic}
+
+
 
 \section{Single qubit gates}
+
+Classically, there are only 2 1-bit logic gates, identity and NOT. But in quantum mechanics the zero and one states can be placed into superposition, so there are many other possibilities. 
+
+\subsection{Pauli gates}
+The simplest 1-qubit gates are the 4 gates represented by the Pauli operators: I, X, Y, and Z.
+
+
 
 
 \paragraph{Pauli-I} (identity):\index{I}\index{Pauli-I}\index{identity}
@@ -69,16 +103,17 @@ Tech. Note 014v\theversion ~~~ \href{http://threeplusone.com/gates}{http://three
 %
 $\qquad\left(\begin{array}{rr}1 & 0 \\ 0 & 1 \end{array}\right)$
 \end{center}
-
-
+The trivial no-operation gate on 1-qubit, represented by the identity matrix. 
 
 \paragraph{Pauli-X gate} (X-gate, NOT, bit flip)
- 
 \begin{center}
 \input{circuits/X.tex}
 %
 $\qquad\left(\begin{array}{rr}0 & 1 \\ 1 & 0 \end{array}\right)$
 \end{center}
+Applies a logical not to the computational basis, so that $\ket{0}$ becomes $\ket{1}$ and $\ket{1}$ becomes $\ket{0}$. 
+
+
 
 \paragraph{Pauli-Y gate} (Y-gate) :
 
@@ -87,8 +122,10 @@ $\qquad\left(\begin{array}{rr}0 & 1 \\ 1 & 0 \end{array}\right)$
 %
 $\qquad\left(\begin{array}{rr} 0 & -i \\ i & 0 \end{array}\right)$
 \end{center}
+A useful mnemonic for remembering the matrix of the Y gate is ``Minus eye high''~\cite{???}.
+% TODO: What's the origin of this?
 
-Useful mnemonic: ``Minus eye high''
+
 
 \paragraph{Pauli-Z gate} (Z-gate, phase flip)
 
@@ -98,41 +135,51 @@ Useful mnemonic: ``Minus eye high''
 $\qquad\left(\begin{array}{rr}1 & 0 \\ 0 & -1 \end{array}\right)$
 \end{center}
 
-\paragraph{S} (Phase, P, 'ess') gate
-
-\begin{center}
-\input{circuits/S.tex}
-%
-$\qquad\left(\begin{array}{rr}1 & 0 \\ 0 & i \end{array}\right)$
-\end{center}
-
-\paragraph{T} ("tee", $\pi/8$) gate
-
-\begin{center}
-\input{circuits/T.tex}
-%
-$\qquad\Left(\begin{array}{cc}1 & 0 \\ 0 & e^{i \pi/4} \end{array}\Right)$
-\end{center}
 
 
 
-\paragraph{Hadamard gate}
 
-\begin{center}
-\input{circuits/H.tex}
-%
-$\qquad\begin{bmatrix}1 & 1 \\ 1 & -1 \end{bmatrix}$
-\end{center}
+\paragraph{Phase gate}
 
+
+\subsection{Rotation gates}
+
+\paragraph{$R_x$} gate
+\[
+        R_x(\theta) =   \begin{bmatrix*}[r]
+                            \cos(\half\theta) & -i \sin(\half\theta) \\
+                            -i \sin(\half\theta) & \cos(\half\theta)
+                        \end{bmatrix*}
+\]
 
 
 $$
 \input{circuits/RX.tex}
 $$
 
+ 
+\paragraph{$R_y$} gate
+\[
+        R_y(\theta) =   \begin{bmatrix*}[r]
+ 			\cos(\half\theta) & -\sin(\half\theta)
+        	\\ \sin(\half\theta) & \cos(\half\theta)
+                        \end{bmatrix*}
+\]
+
 $$
 \input{circuits/RY.tex}
 $$
+
+
+\paragraph{$R_z$} gate
+\[
+        R_z(\theta) =   \begin{bmatrix*}
+        e^{-i\half\theta} & 0 \\
+        0 & e^{+i\half\theta}
+                        \end{bmatrix*}
+\]
+
+
 
 $$
 \input{circuits/RZ.tex}
@@ -152,13 +199,99 @@ $$
 
 
 $$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate{R_{\vec{n}}(\theta)} & \qw
+\end{quantikz}
+}
+$$
+
+\[
+R_{\vec{n}}(\theta) = \cos \frac{\theta}{2} I - i \sin\frac{\theta}{2}(n_x X+ n_y Y + n_z Z)
+\]
+
+
+\[
+R_{\vec{n}}(\theta) =
+\begin{bmatrix*}
+	\cos(\half\theta) - i n_z \sin(\half\theta)  &
+	- n_y \sin(\half\theta)-i n_x \sin(\half\theta)  \\
+	n_y \sin(\half\theta)-i n_x \sin(\half\theta)   & 
+	\cos(\half\theta) + i n_z \sin(\half\theta)
+\end{bmatrix*}
+\]
+
+
+
+\subsection{Powers of Pauli gates}
+
+\paragraph{Phase shift} gate
+
+
+\paragraph{S} (Phase, P, 'ess') gate
+
+\begin{center}
+\input{circuits/S.tex}
+%
+$\qquad\left(\begin{array}{rr}1 & 0 \\ 0 & i \end{array}\right)$
+\end{center}
+
+\paragraph{T} ("tee", $\pi/8$) gate
+
+\begin{center}
+\input{circuits/T.tex}
+%
+$\qquad\Left(\begin{array}{cc}1 & 0 \\ 0 & e^{i \pi/4} \end{array}\Right)$
+\end{center}
+
+
+
+
+\subsection{Hadamard-type gates}
+
+\paragraph{Hadamard gate}\index{Hadamard gate}\index{Hadamard transform}\index{Walsh-Hadamard transform}
+The Hadamard gate is one of the most interesting and useful of the common gates. Its effect is a $\pi$ rotation in the Bloch sphere about the axis
+$\tfrac{1}{\sqrt{2}}(\widehat{x}+\widehat{z})$, % FIXME: \hat not working!?
+essentially half way between Z and X gates (fig.~???)
+\begin{center}
+\input{circuits/H.tex}
+%
+$\qquad\tfrac{1}{\sqrt{2}}\begin{bmatrix*}[r]1 & 1 \\ 1 & -1 \end{bmatrix*}$
+$\qquad\tfrac{1}{\sqrt{2}}\begin{bmatrix}1 & 1 \\ 1 & -1 \end{bmatrix}$
+
+\end{center}
+The Hadamard gate acts on the computation basis states to create superpositions of zero and one states.
+\[
+H\ket{0} & = \tfrac{1}{\sqrt{2}}(\ket{0}+\ket{1}) = \ket{+}
+\notag
+\\
+H\ket{1} & = \tfrac{1}{\sqrt{2}}(\ket{0}-\ket{1}) = \ket{-} 
+\notag
+\]
+
+% TODO
+% 1-qubit Fourier transform
+% Named for Hadamard transform (Walsh-Hadamard transform) 
+% Explain +/- states, "polar basis" Hadamard basis? Also angled arrows?
+% Create supposition of all computational basis states
+% Hermitian, so own inverse
+% When introduced into quantum computing?
+
+
+\paragraph{Pseudo-Hadamard gate}~\cite{Jones1998a}
+% https://arxiv.org/pdf/quant-ph/9805070.pdf # Descriptions
+% https://arxiv.org/pdf/quant-ph/0006103.pdf # uses
+
+\begin{center}
 \input{circuits/ph.tex}
-$$
+%
+$\qquad\frac{1}{\sqrt{2}}\begin{bmatrix}1 & 1 \\ -1 & 1 \end{bmatrix}$
+\end{center}
 
-$$
+\begin{center}
 \input{circuits/inv_ph.tex}
-$$
-
+%
+$\qquad\frac{1}{\sqrt{2}}\begin{bmatrix}1 & -1 \\ 1 & 1 \end{bmatrix}$
+\end{center}
 
 
 
@@ -207,6 +340,51 @@ $$
 %
 %
 
+\def\centerarc[#1](#2)(#3:#4:#5)% Syntax: [draw options] (center) (initial angle:final angle:radius)
+    { \draw[#1] ($(#2)+({#5*cos(#3)},{#5*sin(#3)})$) arc (#3:#4:#5); }
+
+
+\begin{figure}
+\begin{center}
+ \begin{tikzpicture}[scale=3]
+   \begin{scope}[canvas is zy plane at x=0]
+     \draw (0,0) circle (1cm);
+     %\draw[ultra thin] (-1,0) -- (1,0) (0,-1) -- (0,1);
+     \draw[] (0,0) -- (1.2,0) node[below left] {$R_x(\theta)$};
+   \end{scope}
+
+   \begin{scope}[canvas is zx plane at y=0]
+     \draw (0,0) circle (1cm);
+     %\draw (-1,0) -- (1,0) (0,-1) -- (0,1);
+     \draw[] (0,0) -- (0,1.1) node[right] {$R_y(\theta)$};
+   \end{scope}
+
+   \begin{scope}[canvas is xy plane at z=0]
+     \draw (0,0) circle (1cm);
+	\draw[] (0,0) -- (0,1.1) node[above] {$R_z(\theta)$};
+	\end{scope}
+		 
+   \begin{scope}[canvas is xy plane at z=1.0]	
+   	\centerarc[red,->](0,0)(450:135:0.25)
+   \end{scope}
+
+   \begin{scope}[canvas is zy plane at x=1.0]	
+   	\centerarc[blue,<-](0,0)(450:135:0.25)
+   \end{scope}
+
+   \begin{scope}[canvas is zx plane at y=1.0]	
+   	\centerarc[green,->](0,0)(450:135:0.25)
+   \end{scope}
+
+	 
+	 
+	 
+ \end{tikzpicture}
+ \end{center}
+\caption{Rotations of the Bloch Sphere}
+\end{figure}
+
+
 \begin{figure}
 \begin{center}
  \begin{tikzpicture}[scale=3]
@@ -234,6 +412,8 @@ $$
 \caption{Sphere of 1-qubit gates. Each point within this sphere represents a unique (up to phase) 1-qubit gate. 
 Antipodal points on the surface represent the same gate.}
 \end{figure}
+
+
 
 
 \begin{figure}
@@ -368,9 +548,16 @@ Note there is a symmetry on the bottom face such that $CAN(t_x, t_y, 0) \loceq C
 \end{figure*}
 
 
+\section{Decomposition of 1-qubit gates}
+
+\subsection{ZYZ-Euler decompositions}
+
+\subsection{General Euler decompositions}
+
+\subsection{Bloch rotation decomposition}
 
 \section{The canonical gate}
-The canonical gate is a 3-parameter quantum logic gate that acts on two qubits.
+The canonical gate is a 3-parameter quantum logic gate that acts on two qubits~\cite{???,???,???}.
 \[
 \Gate{CAN}&(t_x, t_y, t_z) 
 \notag \\ = 
@@ -379,7 +566,20 @@ The canonical gate is a 3-parameter quantum logic gate that acts on two qubits.
 Here, $X=(\begin{smallmatrix}0 & 1 \\ 1 & 0\end{smallmatrix})$,
 $Y=(\begin{smallmatrix}0 & \text{-}i \\ i & 0\end{smallmatrix})$, 
 and $Z=(\begin{smallmatrix}1 & 0 \\ 0 & \text{-}1\end{smallmatrix})$ are the 1-qubit Pauli matrices.
-Note that other choices for the prefactor in the exponential are also common in the literature.
+
+Note that other parameterizations are common in the literature. Often there will be a sign flip and/or the $\frac{\pi}{2}$ factor is absorbed into the parameters. The parameterization used here the nice feature that it corresponds to powers of direct products of Pauli operators (up to phase) (see~\eqref{XX}, \eqref{YY}, \eqref{ZZ}) .
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+ & \gate[2]{CAN(t_x, t_y, t_z)} & \qw \\
+ &                              & \qw
+\end{quantikz}}
+\simeq
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{XX^{t_x}} &\gate[2]{YY^{t_y}} &\gate[2]{ZZ^{t_z}} & \qw \\
+ &                          &  &  & \qw
+\end{quantikz}}
+$$
+
 
 The canonical gate is, in a sense, the elementary 2-qubit gate, since any other 2-qubit gate can be decomposed into a canonical gate, and
 local 1-qubit interactions~\cite{Zhang2003a,Zhang2004a,Blaauboer2008a,Watts2013a}.
@@ -414,16 +614,75 @@ $$
 $$
 
 
-Here we use '$\simeq$' to indicate that two gates have the same unitary operator up to a global (and generally irrelevant) phase factor.
+Here we use '$\simeq$' to indicate that two gates have the same unitary operator up to a global (and generally irrelevant) phase factor. We'll use '$\loceq'$ to indicate that two gates are locally equivalent, in that they can be mapped to one another by local 1-qubit rotations. 
+% TODO: Cite B paper for \sim notation for locally equivalent gates?
 
 The canonical gate is periodic in each parameters with period 4, or period 2 if we neglect a $-1$ global phase factor. Thus we can constrain each parameter to the range $[-1,1)$. Since $X\otimes X$,  $Y\otimes Y$, and $Z \otimes Z$ all commute, the parameter space has the topology of a 3-torus.
 
-However, the canonical coordinates of any given 2-qubit gate are not unique since we have considerable freedom in the prepended and postpended local gates. To remove these symmetries we can constraint the canonical parameters to a ``Weyl chamber''~\cite{???,???}.
+However, the canonical coordinates of any given 2-qubit gate are not unique since we have considerable freedom in the prepended and apended local gates. To remove these symmetries we can constraint the canonical parameters to a ``Weyl chamber''~\cite{???,???}.
 \begin{equation}
 (\tfrac{1}{2} \ge  t_x \ge t_y \ge t_z \ge 0) \cup (\tfrac{1}{2} \ge (1-t_x) \ge t_y \ge t_z > 0 )
 \label{WeylChamber}
 \end{equation}
 This Weyl chamber forms a  trirectangular tetrahedron.  All gates in the Weyl chamber are locally inequivalent (They cannot be obtained from each other via local 1-qubit gates). The net of the Weyl chamber is illustrated in Fig.~\ref{weyl_fig}, and the coordinates of many common 2-qubit gates are listed in table~\ref{weyl_table}. Code for performing a canonical-decomposition, and therefore of determining the Weyl coordinates, can be found in the decompositions subpackage of {\tt QuantumFlow}~\cite{QuantumFlow}.
+
+
+
+\begin{center}
+\begin{tikzpicture}[tdplot_main_coords, scale=2.5]
+\draw (0,0,0) -- (2,0,0) -- (1,1,0)  -- cycle
+      (0,0,0) -- (1,1,1) -- (1,1,0)  -- cycle
+      (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle
+      (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle;
+%\draw (1,0,0) -- (1,1,0) -- (1,1,1) -- cycle;
+%\draw (1,0,0) -- (1,1,0) -- (1,1,1) -- cycle;
+\draw [dashed] (0,0,0) -- (2,0,0) -- (2,2,0)  -- (0,2,0) -- cycle
+      (0,0,0) -- (0,0,2) -- (2,0,2)  -- (2,0,0) -- cycle
+      (0,0,0) -- (0,0,2) -- (0,2,2)  -- (0,2,0) -- cycle;
+\draw [dashed] (2,2,2) -- (2,2,0);
+\draw [dashed] (2,2,2) -- (2,0,2);
+\draw [dashed] (2,2,2) -- (0,2,2);
+
+\draw [dotted] (0,0,0) -- (2,2,2);
+\draw [dotted] (0,0,2) -- (2,2,0);
+\draw [dotted] (0,2,0) -- (2,0,2);
+\draw [dotted] (2,0,0) -- (0,2,2);
+
+\end{tikzpicture}
+\end{center}
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{CAN}(t_x,t_y,t_z)} & \qw \\
+&  & \qw
+\end{quantikz}}
+\simeq
+$$
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \qw & \targ{} & \gate{Z^{t_z - \half}} & \ctrl{1} & \qw & \targ{} & \gate{S^\dagger} & \qw \\
+& \gate{S} & \ctrl{-1} & \gate{Y^{t_x - \half}} & \targ{} & \gate{Y^{\half - t_y}} & \ctrl{-1} & \qw & \qw
+\end{quantikz}}
+$$
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{CAN}(t_x,t_y,0)} & \qw \\
+&  & \qw
+\end{quantikz}}
+\simeq
+$$
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate{\text{V}} & \gate{\text{Z}} & \ctrl{1} & \gate{X^{t_x}} & \ctrl{1} & \gate{\text{V}} & \gate{\text{Z}} & \qw \\
+& \gate{\text{V}} & \gate{\text{Z}} & \targ{} & \gate{Z^{t_y}} & \targ{} & \gate{\text{V}} & \gate{\text{Z}} & \qw
+\end{quantikz}
+}
+$$
+% Figures out for myself with some trial and error
+
 
 
 
@@ -481,7 +740,7 @@ Improper orthogonal 	& \half & $t_y$ & $t_z$ \\
 
 
 \section{Principal 2-qubit gates}
-We use '$\loceq'$ to indicate that two gates are locally equivalent, in that they can be mapped to one another by local, 1-qubit rotations. 
+
 
 \subsection{Clifford gates}
 There are four unique 2-qubits gates in the Clifford group (up to local 1-qubit Cliffords): the identity, \Gate{CNOT}, \Gate{iSWAP}, and \Gate{SWAP} gates.
@@ -577,7 +836,7 @@ $$
 0 & 0 & 0 & 1
 \end{smallmatrix}\Right)
 \\
-& \simeq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, 0) \notag
+& \simeq \Gate{CAN}(-\sfrac{1}{2}, -\sfrac{1}{2}, 0) \notag
 \]
 
 
@@ -620,9 +879,12 @@ Gates in the XX (or Ising) class have coordinates $\Gate{CAN}(t, 0, 0)$,
 which forms the front edge of the Weyl chamber. This includes the identity and
 $\Gate{CNOT}$ gates.
 
+% TODO: Controlled-U gates
+
 \paragraph{XX gate (Ising)}
 \[
-\Gate{XX}(t) &= e^{-i \sfrac{\pi}{2} X\otimes X}
+\Gate{XX}(t) &= e^{-i \sfrac{\pi}{2} t X\otimes X}
+\label{XX}
 \\ \notag& =
 \Left(\begin{smallmatrix}
  \cos(\sfrac{\pi}{2}t) & 0 & 0 & - i\sin(\sfrac{\pi}{2}t) \\
@@ -658,16 +920,18 @@ is the natural canonical representation of the CNOT/CZ/MS gate family.
 \paragraph{Magic gate (M)}~\cite{???,???,???}
 \[
 \Gate{M}  & = 
-\frac{1}{\sqrt{2}} \Left(\begin{smallmatrix}
+\frac{1}{\sqrt{2}} \begin{bsmallmatrix*}[r]
   1 & i & 0 & 0 \\
   0 & 0 & i & 1 \\
   0 & 0 & i & -1 \\
   1 & -i & 0 & 0
-\end{smallmatrix}\Right)
+\end{bsmallmatrix*}
 \\
 & \loceq \Gate{CAN}(\half, 0, 0)
 \]
-
+% Origins of Magic basis? S. Hill and W. K. Wootters, Phys. Rev. Lett. 78, 5022 (1997)
+% 
+% Cited in https://arxiv.org/pdf/quant-ph/0011050.pdf
 \cite{Vatan2004a} % Optimal Quantum Circuits for General Two-Qubit Gates
 
 $$
@@ -678,7 +942,8 @@ $$
 
 \paragraph{YY gate}
 \[
-\Gate{YY}(t) &= e^{-i \sfrac{\pi}{2} Y\otimes Y}
+\Gate{YY}(t) &= e^{-i \sfrac{\pi}{2} t Y\otimes Y}
+\label{YY}
 \\ \notag& =
 \Left(\begin{smallmatrix}
  \cos(\sfrac{\pi}{2}t) & 0 & 0 & + i\sin(\sfrac{\pi}{2}t) \\
@@ -696,7 +961,7 @@ $$\input{circuits/yy.tex}$$
 
 \paragraph{ZZ gate}
 \[
-\Gate{ZZ}(t) &= e^{-i \sfrac{\pi}{2} Z\otimes Z}
+\Gate{ZZ}(t) &= e^{-i \sfrac{\pi}{2} t Z\otimes Z}
 \\ \notag& =
 \Left(\begin{smallmatrix}
  1 & 0 & 0 & 0 \\
@@ -809,9 +1074,20 @@ CV & =
 %\end{smallmatrix}\Right) \notag
 \]
 
+% FIXME: Wrong diagram for CV gate. Not interchangeable. Should fail?
 $$
 \input{circuits/cv.tex}
 $$
+
+$$
+\input{circuits/cv.tex}
+\simeq
+\input{circuits/cv_to_cpt.tex}
+$$
+
+
+
+
 
 The $CV$ gate is a square-root of \Gate{CNOT}, since the  V-gate is the square root of the X-gate
 $$
@@ -836,7 +1112,7 @@ Also occasionally referred to as the $\Gate{piSWAP}$ (or parametric iSWAP) gate.
 \Left(\begin{smallmatrix}
 1 & 0 & 0 & 0 \\
 0 & \cos(\pi t) & -i \sin(\pi t) & 0 \\
-0 & -\sin(\pi t) & \cos(\pi t)  & 0 \\
+0 & -i\sin(\pi t) & \cos(\pi t)  & 0 \\
 0 & 0 & 0 & 1
 \end{smallmatrix}\Right)
 \\
@@ -850,12 +1126,12 @@ Also occasionally referred to as the $\Gate{piSWAP}$ (or parametric iSWAP) gate.
 \paragraph{Double Controlled NOT gate (DCNOT)}
 \[
 \Gate{DCNOT} & = 
-\Left(\begin{smallmatrix}
+\Left[\begin{smallmatrix}
  1& 0 & 0 & 0 \\
   0 & 0 & 0 & 1 \\
   0 & 1 & 0 & 0 \\
   0 & 0 & 1 & 0 
-\end{smallmatrix}\Right)
+\end{smallmatrix}\Right]
 \\
 & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, 0) \notag
 \]
@@ -871,6 +1147,23 @@ $$
 %& \lstick{1} & \targ & \ctrl{-1} & \qw & \push{ } & \gate{S^\dag} & \qw & \ghost{{ \text{iSWAP}}} & \gate{H} & \qw
 %}
 
+
+\paragraph{Givens gate}
+\[
+\Gate{Givens} & = \exp(-i \theta (Y\otimes X - X\otimes Y) / 2)
+\\ & =
+\Left[\begin{smallmatrix}
+ 1& 0 & 0 & 0 \\
+  0 & \cos(\theta) & -\sin(\theta) & 0 \\
+  0 & \sin(\theta) & \cos(\theta) & 0 \\
+  0 & 0 & 0 & 1 
+\end{smallmatrix}\Right]
+\\
+& \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, 0) \notag
+\]
+
+
+
 \paragraph{\Gate{bSWAP} (Bell-Rabi) gate}~\cite{Poletto2012a}
 \[
 \Gate{bSWAP} &=
@@ -884,9 +1177,28 @@ $$
 \\ & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, 0) \notag % CHECKME
 \]
 
+\paragraph{???? gate}
 
-\paragraph{{Dagwood Bumstead} (DB) gate}~\cite{Peterson2019a}
-Of all the gates in the \Gate{XY} class, the Dagwood Bumstead-gate makes the biggest sandwiches. \cite[Fig.~4]{Peterson2019a}
+\[
+\Left[\begin{smallmatrix*}[r]
+  +1& 0 & 0 & 0 \\
+  0 & +1 & +1 & 0 \\
+  0 & -1 & +1 & 0 \\
+  0& 0 & 0 & +1 
+\end{smallmatrix*}\Right]
+\\ & \loceq \Gate{Can}(\sfrac{1}{2}, \sfrac{1}{2}, 0) \notag 
+\]
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& &\gate[2]{\Gate{Can}(\sfrac{1}{2},\sfrac{1}{2},0)} & \gate{S} & \qw \\
+&  & & \gate{S^\dagger} & \qw
+\end{quantikz}}
+$$
+% Note: seen in Mike & Ike
+
+\paragraph{{Dagwood Bumstead} (DB) gate}~\cite{Peterson2020a}
+Of all the gates in the \Gate{XY} class, the Dagwood Bumstead-gate makes the biggest sandwiches. \cite[Fig.~4]{Peterson2020a}
 
 \[
 \Gate{DB} &= 
@@ -1007,13 +1319,29 @@ Includes the identity and \Gate{SWAP} gates.
  & = \Gate{CAN}(\sfrac{3}{4}, \sfrac{1}{4}, \sfrac{1}{4})
 \]
 Because of the symmetry around $t_x=\half$ on the base of the Weyl chamber, the \Gate{CNOT} and \Gate{iSWAP} gates only have
-one square root. But the \Gate{SWAP} has two unique square
+one square root. But the \Gate{SWAP} has two locally distinct square
 roots, which are inverses of each other. 
 
 
 \subsection{Parametric SWAP gates}
-The class of parametric SWAP (PSWAP) gates forms the remaining edge of the Weyl chamber, connecting the \Gate{SWAP} and \Gate{iSWAP} gates.
-\paragraph{\Gate{pSWAP} gate}~\cite{Smith2016a}
+The class of parametric SWAP (PSWAP) gates forms the back edge of the Weyl chamber, $\Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, t_z)$, connecting the \Gate{SWAP} and \Gate{iSWAP} gates.
+These gates can be decomposed into a \Gate{SWAP} and \Gate{ZZ} gate.
+
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, t_z)} & \qw \\
+&  & \qw
+\end{quantikz}}
+\simeq
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \swap{1} &\gate[2]{ZZ^{t_z-\half}} & \qw \\
+& \targX{} &  & \qw
+\end{quantikz}}
+$$
+
+
+\paragraph{\Gate{pSwap} gate} (parametric swap)~\cite{Smith2016a}
+The parametric swap gate as originally defined in the QUIL quantum programming language.
 \[
  \Gate{pSWAP}(\theta)  
  & =  \Left(\begin{smallmatrix}
@@ -1021,9 +1349,11 @@ The class of parametric SWAP (PSWAP) gates forms the remaining edge of the Weyl 
   0 & 0 & e^{i\theta} & 0 \\
   0 & e^{i\theta} & 0 & 0 \\
   0 & 0 & 0 & 1 
-\end{smallmatrix} \Right)
+\end{smallmatrix} \Right) 
+\\
  & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, \half - \sfrac{\theta}{\pi})
 \]
+
 
 $$
 \adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
@@ -1040,7 +1370,7 @@ $$
 {}\qquad\qquad\qquad\simeq
 \adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
 & \swap{1} & \qw      &\gate[2]{ZZ^{\half-\sfrac{\theta}{\pi}}} & \qw      & \qw \\
-& \targX{} & \gate{Y} &                                         & \gate{Y} & \qw
+& \targX{} & \gate{Y} &                                         & \gate{Y} & \qw 
 \end{quantikz}}
 $$
 
@@ -1091,22 +1421,27 @@ $$
 \draw [fill, Maroon] (SWAP) circle [radius=0.04]  ;
 \node (SWAP_L) at (2, 1, 1) {${\Gate{SWAP}}$};
 \draw[ultra thin, ->] (SWAP_L) -- (SWAP);
+\node (Sycamore) at (1, 1, 0.16666) {};
+\draw [fill, Maroon] (Sycamore) circle [radius=0.04]  ;
+\node (Sycamore_L) at (2, 1, 0.16666) {${\Gate{Sycamore}}$};
+\draw[ultra thin, ->] (Sycamore_L) -- (Sycamore);
+
 \node (L) at (1, 0, -0.25) {\Gate{pSWAP} gates};
 \end{tikzpicture}
 \end{center}
 
 
-\paragraph{2-qubit quantum Fourier transform (QFT)}~\cite{???}
+\paragraph{Quantum Fourier transform (QFT)}~\cite{???}
 
 \[
  \Gate{QFT}  
 & = 
-\half \Left(\begin{smallmatrix}
+\half \begin{bsmallmatrix*}[r]
        1 &  1      &     1     &      1 \\
           1       &   i & -1 & -i \\
           1     &     -1 & 1 & -1 \\
          1&  -i        &   -1      &    i
-         \end{smallmatrix}\Right)
+         \end{bsmallmatrix*}
  \\ 
  & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{2}, \sfrac{1}{4})
 \notag
@@ -1136,6 +1471,7 @@ The special orthogonal gates have determinant $+1$ and coordinates $\Gate{CAN}(t
 \end{tikzpicture}
 \end{center}
 
+% https://arxiv.org/pdf/quant-ph/0308006.pdf
 
 The improper orthogonal gates have determinant $-1$ and coordinates $\Gate{CAN}(\half, t_y, t_z)$, which is a plane connecting the \Gate{CNOT}, 
 \Gate{iSWAP}, and  \Gate{SWAP} gates.
@@ -1152,9 +1488,10 @@ The improper orthogonal gates have determinant $-1$ and coordinates $\Gate{CAN}(
 \end{tikzpicture}
 \end{center}
 
+% TODO: Decomposition
 
-\paragraph{\Gate{B} (Berkeley) gate}~\cite{???}
-
+\paragraph{\Gate{B} (Berkeley) gate}~\cite{Zhang2004b}
+Located in the middle of the bottom face of the Weyl chamber.
 \[
  \Gate{B}  
 & = 
@@ -1164,17 +1501,72 @@ The improper orthogonal gates have determinant $-1$ and coordinates $\Gate{CAN}(
           0     &     i \sin(\sfrac{3\pi}{8}) & \cos(\sfrac{3\pi}{8}) & 0 \\
          i \sin(\sfrac{\pi}{8}) &  0        &   0      &     \cos(\sfrac{\pi}{8}) 
          \end{smallmatrix}\Right)
- \\ 
- & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{4}, 0)
-\notag
+\\ \notag
+& = 
+\tfrac{\sqrt{2-\sqrt{2}}}{2}\Left(\begin{smallmatrix}
+        1+\sqrt{2} &  0      &     0     &      i \\
+          0       &   1 & i (1+\sqrt{2})  & 0 \\
+          0     &     i (1+\sqrt{2})  & 1 & 0 \\
+         i  &  0        &   0      &     1+\sqrt{2}  
+         \end{smallmatrix}\Right)        
+\\ \notag
+    & = \Gate{CAN}(-\sfrac{1}{2}, -\sfrac{1}{4}, 0)
+%\\ \notag
+  %  & \loceq \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{4}, 0)
 \]
-Notably two-B gates are enough to create any other 2-qubit gate. 
+
+The \Gate{B}-gate, as originally defined, has canonical parameters outside our Weyl chamber due to differing conventions for parameterization of the canonical gate. But of course it can be  moved into our Weyl chamber with local gates. 
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{B} & \qw \\
+&                              & \qw
+\end{quantikz}}
+\simeq
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+&  \gate{Z} & \gate[2]{CAN(\tfrac{1}{2}, \tfrac{1}{4}, 0)} & \gate{Y} & \qw \\
+&   \gate{Y}              & &  \gate{Z}   &\qw
+\end{quantikz}}
+$$
+
+
+The B-gate is half way between the \Gate{CNOT} and \Gate{DCNOT} ($\sim$ \Gate{iSWAP}) gates, and thus it can be constructed from 3 \Gate{CV} (square root of \Gate{CNOT}) gates.
+$$
+\input{circuits/b.tex}
+\loceq
+\input{circuits/b_circ.tex}
+$$
+% TODO: Add local gates
+
+Notably two-B gates are sufficient to create any other 2-qubit gate (whereas, for example, we need 3 CNOT's in general)~\cite{Zhang2004b} 
+\endnote{Open Problem: Zang et al.\cite{Zhang2004b} derive the analytic decomposition of the canonical gate to a B gate sandwich only up to local gates. Derive an analytic formula for the necessary local gates to complete the canonical to B-sandwich decomposition. 
+(page~\pageref{en_zhang})}\label{en_zhang}
+$$
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{CAN(t_x, t_y, t_z)} & \qw \\
+&                              & \qw
+\end{quantikz}}
+\loceq
+\adjustbox{scale=0.9}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+&  \gate[2]{B} & \qw & \gate{Y^{-t_x}}& \qw & \gate[2]{B} & \qw \\
+&               & \gate{Z^{s_z}}& \gate{Y^{s_y}}&     \gate{Z^{s_z}}&  &\qw
+\end{quantikz}}
+$$
+% TODO: Move this to section on decompositions?
+
 % See Blaauboer2008a0.pdf, defines B gate as parameterized gate, talks about implementation
+
+\[
+s_y &= +\tfrac{1}{\pi} \arccos \left(1 - 4 \sin^2\half\pi t_y \cos^2\half\pi t_z\right) \notag \\
+s_z & = -\tfrac{1}{\pi}\arcsin \sqrt{\frac{\cos \pi t_y \cos \pi t_z}{1 - 2 \sin^2\half\pi t_y \cos^2\half\pi t_z}}
+\]
+% TODO: Check equation. Add to QF
+
+
 
 \def\sep{0.25}  % Separation between gates and gate labels
 
-
-\paragraph{\Gate{ECP}-gate}~\cite{Peterson2019a}
+% begin ECP
+\paragraph{\Gate{ECP}-gate}~\cite{Peterson2020a}
 
 \[
  \Gate{ECP}  
@@ -1185,13 +1577,22 @@ Notably two-B gates are enough to create any other 2-qubit gate.
 0 & (1 - i) (c + s) & (1 + i) (c - s)  & 0 \\
 -i 2 s & 0 & 0 & 2 c
 \end{smallmatrix}\Right)
-\\& \qquad c = \cos(\tfrac{\pi}{8}), \quad s = \sin(\tfrac{\pi}{8})\notag
+\\ \notag
+& \qquad c = \cos(\tfrac{\pi}{8})=\sqrt{\tfrac{2 + \sqrt{2}}{2}} 
+\\ \notag
+& \qquad s = \sin(\tfrac{\pi}{8})=\sqrt{\tfrac{2 - \sqrt{2}}{2}} 
  \\ \notag
  & = \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{4}, \sfrac{1}{4})
 \]
+The peak of the pyramid of gates in the Weyl chamber
+that can be created with a square-root of iSWAP sandwich.
+Equivalent to $\Gate{Can}(\tfrac{1}{2}, \tfrac{1}{4}, \tfrac{1}{4})$. 
 
-
-
+$$
+\input{circuits/ecp.tex}
+\simeq
+\input{circuits/ecp_to_sqrtiswap.tex}
+$$
 
 \begin{center}
 \begin{tikzpicture}[tdplot_main_coords, scale=2.5]
@@ -1216,12 +1617,101 @@ Notably two-B gates are enough to create any other 2-qubit gate.
 \end{tikzpicture}
 \end{center}
 
+% end ECP
+
+
+% begin W
+\paragraph{\Gate{W}-gate}~\cite{???}
+\[
+\Gate{W} &= \Left[
+\begin{smallmatrix*}[c] 
+    1&0&0&0 \\
+    0&\tfrac{1}{\sqrt{2}}&\tfrac{1}{\sqrt{2}}&0 \\
+    0&\tfrac{1}{\sqrt{2}}&-\tfrac{1}{\sqrt{2}}&0 \\
+    0&0&0&1
+\end{smallmatrix*}
+\Right] 
+\\ \notag
+ & \loceq \Gate{ECP} = \Gate{CAN}(\sfrac{1}{2}, \sfrac{1}{4}, \sfrac{1}{4})
+\]
+A 2-qubit orthogonal and Hermitian gate (and therefore also symmetric) $\Gate{W}^\dagger=\Gate{W}$,
+that applies a Hadamard gate to a duel-rail encoded qubit.
+$$
+\adjustbox{scale=0.75}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{W}} & \qw \\
+&  & \qw
+\end{quantikz}
+}
+\simeq
+\input{circuits/w_to_ch_cnot.tex}
+$$
+
+This $W$ gate is locally equivalent to \Gate{ECP}, 
+$$
+\adjustbox{scale=0.75}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{W}} & \qw \\
+&  & \qw
+\end{quantikz}
+}
+\simeq
+\input{circuits/w_to_ecp.tex}
+$$
+% TODO: Insert circuit. Self cite for?
+and thus three CNOT gates are necessary (and sufficient) to generate the gate.
+$$
+\adjustbox{scale=0.75}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{W}} & \qw \\
+&  & \qw
+\end{quantikz}
+}
+\simeq
+\input{circuits/w_to_cnot.tex}
+$$
+
+
+
+$$
+\adjustbox{scale=0.75}{\begin{quantikz}[thin lines, column sep=0.75em, row sep={2.5em,between origins}]
+& \gate[2]{\text{W}} & \swap{1} & \gate[2]{\text{W}} & \qw\\ 
+&  & \targX{} & & \qw
+\end{quantikz}
+}
+=
+\Left[
+\begin{smallmatrix*}[c] 
+    1&0&0&0 \\
+    0&1&0&0 \\
+    0&0&-1&0 \\
+    0&0&0&1
+\end{smallmatrix*}
+\Right] 
+$$
+
+
+% TODO: Diagonalizes SWAP
+
+
+% end W
+
+
+
+
+
+
+
+
+
 
 \subsection{\Gate{XXY} gates}
 The remaining faces of the Weyl chamber are the XXY family. Thanks to the Weyl symmetries, this family covers all three faces that meet at the \Gate{SWAP} gate.
 \[
  \Gate{XXY}(t, \delta)  & = \Gate{CAN}(t, t, \delta)
 \]
+
+
+\paragraph{\Gate{FSIM} (Ferminoic Simulator) gate}~\cite{???}
+
+
 
 \begin{center}
 \begin{tikzpicture}[tdplot_main_coords, scale=2.5]
@@ -1246,10 +1736,21 @@ The remaining faces of the Weyl chamber are the XXY family. Thanks to the Weyl s
       (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle
       (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle;      
 \draw (1,0,0) -- (1,1,0) -- (1,1,1) -- cycle;
-\draw[fill, color=teal, opacity=0.2]    (0,0,0) -- (2,0,0) -- (1,1,1)  -- cycle;
+\draw[fill, color=teal, opacity=0.2]    (0,0,0) -- (1,0,0) -- (1,1,1)  -- cycle;
+\end{tikzpicture}
+\begin{tikzpicture}[tdplot_main_coords, scale=2.5]
+\draw (0,0,0) -- (2,0,0) -- (1,1,0)  -- cycle
+      (0,0,0) -- (1,1,1) -- (1,1,0)  -- cycle
+      (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle
+      (2,0,0) -- (1,1,1) -- (1,1,0)  -- cycle;      
+\draw (1,0,0) -- (1,1,0) -- (1,1,1) -- cycle;
+\draw[fill, color=teal, opacity=0.2]    (1,0,0) -- (2,0,0) -- (1,1,1)  -- cycle;
 \end{tikzpicture}
 
 \end{center}
+
+
+\paragraph{\Gate{Sycamore} gate}~\cite{???}
 
 
 \subsection{Perfect entanglers}
@@ -1295,8 +1796,11 @@ $$
 $$
 
 
+
+
 \paragraph{Fredkin gate (controlled-swap, CSWAP)}
 \[
+\text{Fredkin} = 
 \Left[ \begin{smallmatrix}
  1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
  0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -1314,12 +1818,98 @@ $$
 $$
 
 
+\paragraph{Peres gate}~\cite{Peres1985a}
+\[
+\text{Peres} = 
+\Left[ \begin{smallmatrix}
+                1& 0& 0& 0& 0& 0& 0& 0 \\
+                0& 1& 0& 0& 0& 0& 0& 0 \\
+                0& 0& 1& 0& 0& 0& 0& 0 \\
+                0& 0& 0& 1& 0& 0& 0& 0 \\
+                0& 0& 0& 0& 0& 0& 0& 1 \\
+                0& 0& 0& 0& 0& 0& 1& 0 \\
+                0& 0& 0& 0& 0& 1& 0& 0 \\
+                0& 0& 0& 0& 1& 0& 0& 0 
+\end{smallmatrix} \Right]
+\]
+Another gate that is universal for classical reversible computing. It is equivalent to a Fredkin followed by a CNOT gate.
+
+$$
+\input{circuits/peres.tex}
+$$
+
+
+\paragraph{CCZ gate (controlled-controlled-Z)}
+\[
+\Left[ \begin{smallmatrix*}[r]
+ 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+ 0 & 0 & 0 & 0 & 0 & 0 & 0 & -1 \\
+\end{smallmatrix*} \Right]
+\]
+$$
+\input{circuits/ccz.tex}
+$$
+
+
+\paragraph{Deutsch gate}~\cite{Deutsch1989a, Barenco1995a, Shi2018a}
+A controlled-controlled-$i\Gate{R_x}(2\theta)$ gate. Mostly of historical interest, since this was the first quantum gate to be shown to be computationally universal~\cite{Deutsch1989a}. Barenco~\cite{ Barenco1995a} latter demonstrate a construction of the Deutsch gate from 2-qubit `Barenco' gates, demonstrating that 2-qubits gates are sufficient for universality. 
+\[
+\text{Deutsch}(\theta) =
+\Left[ \begin{smallmatrix}
+                1& 0& 0& 0& 0& 0& 0& 0 \\
+                0& 1& 0& 0& 0& 0& 0& 0 \\
+                0& 0& 1& 0& 0& 0& 0& 0 \\
+                0& 0& 0& 1& 0& 0& 0& 0 \\
+                0& 0& 0& 0& 1& 0& 0& 0 \\
+                0& 0& 0& 0& 0& 1& 0& 0 \\
+                0& 0& 0& 0& 0& 0& i \cos(\theta) & \sin(\theta) \\
+                0& 0& 0& 0& 0& 0& \sin(\theta)& i \cos(\theta)
+\end{smallmatrix} \Right]
+\]
+Examining the controlled unitary sub-matrix, the Deutsch gate can be thought of as a controlled $i R_X(\theta)^2$ gate.
+$$
+\text{Deutsch}(\theta) = 
+\input{circuits/Deutsch}
+$$
+
+
+% $$
+% \input{circuits/Deutsch}
+% \simeq 
+% \input{circuits/deutsch_to_barenco}
+% $$
+
+
+% Also cite: https://journals.aps.org/prapplied/abstract/10.1103/PhysRevApplied.9.051001
+% for proposed physical implementation Shi2018a
 
 
 
-% \section{Clifford Gates}
 
-% The Clifford gates are those gates that can be generated by the phase  (S), Hadamard (H), and controlled-not (CNOT) gates.
+% \section{Controlled-Unitary gates}
+
+% $ABC = I$ and $U = e^{i\alpha} A X B X C$
+%
+% Euler dek: $U= e^{i\alpha} R_z(\beta) R_y(\gamma) R_z(\delta)$
+%
+% $A = R_z(\beta) R_y(\gamma/2)$,
+% $B = R_y(-\gamma/2)R_z(-(\delta+\beta)/2)$,
+% $C = R_z((\delta-\beta)/2)$
+%
+
+
+%\section{Pauli Algebra}
+
+
+ \section{Clifford Gates}
+
+The 1-qubit Clifford gates are those gates that can be generated by the phase (S), Hadamard (H), and controlled-not (CNOT) gates.
 
 
 
@@ -1380,8 +1970,69 @@ $H$						& $\pi$ 				& $\sfrac{1}{\sqrt{2}}$ &0 & $\sfrac{1}{\sqrt{2}}$ 		&%&$H$
 \label{default}
 \end{table}%
 
+%
+%\begin{figure}
+%\begin{center}
+% \begin{tikzpicture}[scale=3]
+%   \begin{scope}[canvas is zy plane at x=0]
+%     \draw (0,0) circle (1cm);
+%     %\draw[ultra thin] (-1,0) -- (1,0) (0,-1) -- (0,1);
+%     \draw[->] (0,0) -- (1.2,0) node[below ] {$n_x$};
+%   \end{scope}
+%
+%
+%   \begin{scope}[canvas is zx plane at y=0]
+%     \draw (0,0) circle (1cm);
+%     %\draw (-1,0) -- (1,0) (0,-1) -- (0,1);
+%     \draw[->] (0,0) -- (0,1.1) node[right] {$n_y$};
+%   \end{scope}
+%
+%   \begin{scope}[canvas is xy plane at z=0]
+%%   	\draw[-,line width=4pt,draw=white] (1,0) arc(0:190:1cm);
+%
+%     \draw (0,0) circle (1cm);
+%	%\draw (-1,0) -- (1,0) (0,-1) -- (0,1);
+%	\draw[->] (0,0) -- (0,1.1) node[above] {$n_z$};
+%	
+%   \end{scope}
+%
+%%
+%%	\node[] at ({sqrt(1/2)},{sqrt(1/2)},0) {$\bullet$};
+%%	\node[] at ({sqrt(1/2)},0,{sqrt(1/2)}) {$\bullet$};
+%%	\node[] at (0,{sqrt(1/2)},{sqrt(1/2)}) {$\bullet$};
+%%	\node[] at ({-sqrt(1/2)},{sqrt(1/2)},0) {$\bullet$};
+%%	\node[] at ({sqrt(1/2)},0,{-sqrt(1/2)}) {$\bullet$};
+%%	\node[] at (0,{-sqrt(1/2)},{sqrt(1/2)}) {$\bullet$};
+%%
+%%	\node[] at ({-sqrt(1/2)},{-sqrt(1/2)},0) {$\bullet$};
+%%	\node[] at ({-sqrt(1/2)},0,{-sqrt(1/2)}) {$\bullet$};
+%%	\node[] at (0,{-sqrt(1/2)},{-sqrt(1/2)}) {$\bullet$};
+%%	\node[] at ({sqrt(1/2)},{-sqrt(1/2)},0) {$\bullet$};
+%%	\node[] at ({-sqrt(1/2)},0,{sqrt(1/2)}) {$\bullet$};
+%%	\node[] at (0,{sqrt(1/2)},{-sqrt(1/2)}) {$\bullet$};
+%
+%
+%%	\node[] at ({sqrt(4/27)},{sqrt(4/27)},{sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({sqrt(4/27)},{sqrt(4/27)},{-sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({sqrt(4/27)},{-sqrt(4/27)},{sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({sqrt(4/27)},{-sqrt(4/27)},{-sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({-sqrt(4/27)},{sqrt(4/27)},{sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({-sqrt(4/27)},{sqrt(4/27)},{-sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({-sqrt(4/27)},{-sqrt(4/27)},{sqrt(4/27)}) {$\bullet$};
+%%	\node[] at ({-sqrt(4/27)},{-sqrt(4/27)},{-sqrt(4/27)}) {$\bullet$};
+%%
+%
+% \end{tikzpicture}
+% \end{center}
+%\caption{Sphere of 1-qubit gates. Each point within this sphere represents a unique (up to phase) 1-qubit gate. 
+%Antipodal points on the surface represent the same gate.}
+%\end{figure}
 
 \appendix
+
+
+
+
 
 % \section{Note on Notation and Nomenclature}
 
@@ -1397,8 +2048,9 @@ $H$						& $\pi$ 				& $\sfrac{1}{\sqrt{2}}$ &0 & $\sfrac{1}{\sqrt{2}}$ 		&%&$H$
 
 
 % TODO
-% Deutsch  gate, 3-qubit gage listed on wikipedia
 % generalization of CCNOT with multiple controls (some negative)
+
+\printendnotes
 
 \bibliography{Quantum,GECLibrary}
 
@@ -1406,7 +2058,7 @@ $H$						& $\pi$ 				& $\sfrac{1}{\sqrt{2}}$ &0 & $\sfrac{1}{\sqrt{2}}$ 		&%&$H$
 \vfill
 {\center
 ~\\~\\
-Copyright \copyright~2019~ Gavin E.\ Crooks~\\
+Copyright \copyright~2019-2020~ Gavin E.\ Crooks~\\
 %\\
 ~ %TODO: ISBN
 \\
@@ -1426,6 +2078,33 @@ fonts: Trump Mediaeval (text), Euler (math)
 
 % ===========================================================================
 
+ \end{document}
+
+
+%%%%%%%%%%%% Supplemental %%%%%%%%%%%%
+
+\clearpage
+\part{Supplemental}
+
+\nocite{Deutsch1985a}
+
+\section{Introduction}
+A computer is a physical device that can systematically process information. The original computers were people particularly adept at adding and multiplying numbers. But people are not particularly good as manipulating abstract information;  we take years to train, still make mistakes, and then die at inconvenient moments taking our stores of information with us.  But long ago mankind realized we could offload the computational load onto the physical environment. We developed abstract symbols for verbal and numerical information, paper and ink as external information stores, and mechanical devices to manipulate those symbols. 
+
+Writing and the abacus, the first mechanical computational device, were invented in Mesopotamia over 5000 years ago. Two millennia ago the Greeks were building elaborate analogy computers to calculate the passage of the sun, moon, and planets through the heavens. But not until the industrial revolution di the idea of a general purpose computer begin to take shape. Charles Babbage had the vision of a steam powered engine for systematic calculations of complex functions; and then even more fore-sited he conceived of an ``analytic engine'', the first inklings of a general purpose programmable computer. 
+A program is just an algorithm, a systematic step-by-step procedure for carrying out a complex computation. And a program is itself information, and therefore the instructions for operating a computer can be stored and manipulated by the computer itself. A programmable computer can be fed instructions that allow it to carry out any computation. Babbage was well ahead of this time. Neither his difference nor analytic engines could be built with the technology of then available time. It took the development of electronic switches (electro-mechanical relays, vacuums valves, and ultimately silicon transistors) to realize his vision of a general purpose computational engine a century latter.  
+
+Turing universal computer. Church-Turing 
+
+From the Second World War onwards we have witnessed a computational revolution that matches in scope and import of the preceding agricultural and industrial revolutions.  Just as the amount of food one man can grow has dramatically increased, or the power one man can exert, so to has the amount of information that one man can access and process has grown immensely. terrabyes per second.
+
+Abstract away most of the physical details. However, almost forgotten in the computer revolution was the central truth that a computer is a physical device. Information, however apparently abstract, is ultimately stored in physical objects. And a computer is a machine that has to obey the laws of physics. However, implicit in the early development of computer theory was the idea that reality obeys the commonsense laws of logic. In our current parlance, the implicit physical laws of underlying conventional computers are classical.      
+ 
+
+
+However abstract the computation or information appears, at the bottom the information is stored in a material systems and manipulated with the laws of physics. 
+
+
 
 
 \end{document}
@@ -1435,7 +2114,7 @@ fonts: Trump Mediaeval (text), Euler (math)
 % 2019-05-24	9 pages
 % 2019-05-25	Added quantikz latex circuit support to quantumflow
 % 2019-05-26	Programmatically generate most circuits
-
-
+% 2020-02-13    v3 12 pages
+% 2020-06-01	v4 14 pages
 
 
