@@ -114,7 +114,7 @@
 \node [below, Maroon, rotate=-\ang] at ({2-1/4}, {sqrt(2)/4}) {$\Gate{Exchange}\quad(t,1$-$t,1$-$t)$};
 
 % PSWAP
-\node [above, Maroon, rotate=180] at ({3/2}, {sqrt(2)}) {$\Gate{PSWAP}\quad(\tfrac{1}{2},\tfrac{1}{2},t)$};
+\node [above, Maroon, rotate=180] at ({3/2}, {sqrt(2)}) {$\Gate{PSwap}\quad(\tfrac{1}{2},\tfrac{1}{2},t)$};
 
 % A
 \node [above, Maroon, rotate=90] at ({1}, {3*sqrt(2)/4}) {$\Gate{A}\quad(\tfrac{1}{2},t,t)$};
@@ -131,19 +131,19 @@
 \draw [->] (I2_L) -- (I2);
 
 \node (CNOT) 	at (1, 0) {};
-\node (CNOT_L) 	at ([shift={(90:\sep)}]CNOT) {\Gate{CNOT}};
+\node (CNOT_L) 	at ([shift={(90:\sep)}]CNOT) {\Gate{CNot}};
 \draw[->] (CNOT_L) -- (CNOT);
 
 \node (SWAP) 	at (1, {sqrt(2)}) {};
-\node (SWAP_L) at ([shift={(270:\sep)}]SWAP) {$\Gate{SWAP}$};
+\node (SWAP_L) at ([shift={(270:\sep)}]SWAP) {$\Gate{Swap}$};
 \draw[->] (SWAP_L) -- (SWAP);
 
 \node (SWAPR) 	at ({1/2}, {sqrt(2)/2}) {};			% Root of SWAP
-\node (SWAPR_L) at ([shift={(0:{\sep*3/2})}]SWAPR) {$\sqrt{\Gate{SWAP}}$};
+\node (SWAPR_L) at ([shift={(0:{\sep*3/2})}]SWAPR) {$\sqrt{\Gate{Swap}}$};
 \draw[->] (SWAPR_L) -- (SWAPR);
 
 \node (SWAPRI) 	at ({3/2}, {sqrt(2)/2})	{};			% SWAP, Sqrt, inverse
-\node (SWAPRI_L) at ([shift={(180:{\sep*3/2})}]SWAPRI) {$\sqrt{\Gate{SWAP}}^\dagger$};
+\node (SWAPRI_L) at ([shift={(180:{\sep*3/2})}]SWAPRI) {$\sqrt{\Gate{Swap}}^\dagger$};
 \draw[->] (SWAPRI_L) -- (SWAPRI);
 
 \node (ECP)		at (1, {sqrt(2)/2}) {};
@@ -156,15 +156,15 @@
 
 \node (ISWAP) at (0, {sqrt(2)}) {};
 \node (ISWAP2)	at (2, {sqrt(2)}) {};
-\node [rotate=135] (ISWAP2_L) at ([shift={(225:\sep)}]ISWAP2) {${\Gate{iSWAP}}$};
+\node [rotate=135] (ISWAP2_L) at ([shift={(225:\sep)}]ISWAP2) {${\Gate{iSwap}}$};
 \draw[->] (ISWAP2_L) -- (ISWAP2);
 
 \node (ISWAPR)	at (0, {sqrt(2)/2}) {};
-\node [rotate=270] (ISWAPR_L) at ([shift={(0:\sep)}]ISWAPR) {$\sqrt{\Gate{iSWAP}}$};
+\node [rotate=270] (ISWAPR_L) at ([shift={(0:\sep)}]ISWAPR) {$\sqrt{\Gate{iSwap}}$};
 \draw[->] (ISWAPR_L) -- (ISWAPR);
 
 \node (ISWAPR2)	at (2, {sqrt(2)/2}) {};
-\node [rotate=90] (ISWAPR2_L) at ([shift={(180:\sep)}]ISWAPR2) {$\sqrt{\Gate{iSWAP}}$};
+\node [rotate=90] (ISWAPR2_L) at ([shift={(180:\sep)}]ISWAPR2) {$\sqrt{\Gate{iSwap}}$};
 \draw[->] (ISWAPR2_L) -- (ISWAPR2);
 
 \node (DB) at (0, {sqrt(2)*3/4}) {};
@@ -201,7 +201,7 @@
 \node at (1, 0.35){\small{Tech. Note 12v5}};
 
 
-\node at (1,0.24){$\Gate{CAN}(t_x, t_y, t_z)  = \exp\bigl(-i\frac{\pi}{2}
+\node at (1,0.24){$\Gate{Can}(t_x, t_y, t_z)  = \exp\bigl(-i\frac{\pi}{2}
 	(t_x X\otimes X + t_y Y\otimes Y + t_z Z \otimes Z) \bigr)$};
 
 
@@ -209,7 +209,7 @@
 	Instructions:\\
 	(1) Print\\
 	(2) Cut along outside edges\\
-	(3) Fold along \Gate{Ising}, \Gate{XY}, \Gate{Exchange}, and \Gate{PSWAP} edges\\
+	(3) Fold along \Gate{Ising}, \Gate{XY}, \Gate{Exchange}, and \Gate{PSwap} edges\\
 	(4) Paste tabs
 };
 
